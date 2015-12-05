@@ -22,15 +22,25 @@ end
 load_modules()
 
 def get_nick(line)
-   return line[/:(.*?)!/, 1]
+  return line[/:(.*?)!/, 1]
 end
 
 def get_message(line)
-   return line.partition(' :').last
+  return line.partition(' :').last
 end
 
 def get_sent_to(line)
-   return line[/PRIVMSG (.*?) :/, 1]
+  return line[/PRIVMSG (.*?) :/, 1]
+end
+
+def send_message(socket)
+  loop do
+    sleep(1.5)
+    if !$to_send.empty?
+      message = $to_send.shift
+      socket.puts message
+    end
+  end
 end
 
 # Connecting to the irc server
@@ -41,6 +51,9 @@ socket.puts "NICK #{nick}\r\n"
 socket.puts "USER #{nick} - - :#{nick}\r\n"
 socket.puts "JOIN #{channel}\r\n"
 
+# Create a thread that will send messages in $to_send array
+$to_send = Array.new
+reply_thread = Thread.new { send_message(socket) }
 
 while line = socket.gets # Read from the socket forever
   puts line.chop      # Print everything read from the socket
@@ -61,7 +74,11 @@ while line = socket.gets # Read from the socket forever
       sent_to = get_sent_to(line)
 
       # Running the module
-      socket.puts send(item, user_nick, nick, message, sent_to)
+      module_reply = send(item, user_nick, nick, message, sent_to)
+      if module_reply.kind_of?(Array)
+        $to_send = $to_send + module_reply
+      end
+      
     end
   end
 

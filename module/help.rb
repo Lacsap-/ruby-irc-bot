@@ -7,9 +7,9 @@ def help(nick, bot_nick, message, sent_to)
     sent_to = nick
   end
 
-  help_message = "PRIVMSG #{sent_to} :Enter the 'module' command to get a list of loaded module.\r\n"
-  help_message += "PRIVMSG #{sent_to} :To enter a command, just type '!' followed by the command name.\r\n"
-  help_message += "PRIVMSG #{sent_to} :ex: '!dummy_command'"
+  help_message = ["PRIVMSG #{sent_to} :Enter the 'module' command to get a list of loaded module.",
+                  "PRIVMSG #{sent_to} :To enter a command, just type '!' followed by the command name.",
+                  "PRIVMSG #{sent_to} :ex: '!dummy_command'"]
 
   return help_message
 end
